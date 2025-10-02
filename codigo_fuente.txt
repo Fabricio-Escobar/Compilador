@@ -6,10 +6,10 @@ decl
   cad mensaje ; 
 
 inicio
-  contador := (3+4)/3;
+  contador := ( 3+4 )/3;
   mensaje := "Hola Mundo";
   impcad mensaje ;
-  int error, error, error;
+  #int error, error, error;
   
   leerdig resultado;
   impdig resultado + contador ;

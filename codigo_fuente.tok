@@ -16,13 +16,13 @@ INICIO               inicio               Linea:8          Columna:1
 ID                   contador             Linea:9          Columna:3         
 ASIG                 :=                   Linea:9          Columna:12        
 PAREN                (                    Linea:9          Columna:15        
-CINT                 3                    Linea:9          Columna:16        
-MAS                  +                    Linea:9          Columna:17        
-CINT                 4                    Linea:9          Columna:18        
-TESIS                )                    Linea:9          Columna:19        
-DIV                  /                    Linea:9          Columna:20        
-CINT                 3                    Linea:9          Columna:21        
-PC                   ;                    Linea:9          Columna:22        
+CINT                 3                    Linea:9          Columna:17        
+MAS                  +                    Linea:9          Columna:18        
+CINT                 4                    Linea:9          Columna:19        
+TESIS                )                    Linea:9          Columna:21        
+DIV                  /                    Linea:9          Columna:22        
+CINT                 3                    Linea:9          Columna:23        
+PC                   ;                    Linea:9          Columna:24        
 ID                   mensaje              Linea:10         Columna:3         
 ASIG                 :=                   Linea:10         Columna:11        
 CADENA_LITERAL       "Hola Mundo"         Linea:10         Columna:14        

@@ -1,20 +1,20 @@
-ID    Lexema          Token          Tipo en Diccionario
+ID    Lexema          Token          Tipo en Diccionario Tipo Declarado
 -------------------------------------------------------
 1     pf2025          PROG            Palabra reservada
-2     miPrograma      ID              Identificador
+2     miPrograma      ID              Identificador        
 4     decl            DECL            Palabra reservada
 5     int             TYPE            Palabra reservada
-6     contador        ID              Identificador
-8     resultado       ID              Identificador
+6     contador        ID              Identificador        int
+8     resultado       ID              Identificador        int
 9     cad             TYPE            Palabra reservada
-10    mensaje         ID              Identificador
+10    mensaje         ID              Identificador        cad
 11    inicio          INICIO          Palabra reservada
 13    (               PAREN           Agrupación
 15    +               MAS             Operador aritmético
 17    )               TESIS           Agrupación
 18    /               DIV             Operador aritmético
 20    impcad          IMPCAD          Palabra reservada
-21    error           ID              Identificador
+21    error           ID              Identificador        
 22    leerdig         LEERDIG         Palabra reservada
 23    impdig          IMPDIG          Palabra reservada
 24    fin             FIN             Palabra reservada

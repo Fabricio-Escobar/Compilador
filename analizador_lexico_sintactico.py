@@ -167,74 +167,6 @@ class AnalizadorLexico:
 
         return tokens
 
-if __name__ == "__main__":
-    archivo_fuente = "codigo_fuente.txt"  # Nombre del archivo de entrada
-    try:
-        with open(archivo_fuente, "r", encoding="utf-8") as archivo:
-            codigo_ejemplo = archivo.read()
-    except FileNotFoundError:
-        print(f"Error: No se encontró el archivo {archivo_fuente}")
-        exit(1)
-
-    analizador = AnalizadorLexico(codigo_ejemplo, patrones_lexer, palabrasReservadas)
-
-    try:
-        tokens = analizador.generar_tokens()
-        # for token in tokens:
-        #     print(token)
-        archivo_salida_tok = archivo_fuente.replace(".txt", ".tok")
-        with open(archivo_salida_tok, "w", encoding="utf-8") as archivo_salida:
-            archivo_salida.write(f"{'Tipo de Token':<20}{'Valor':<20} {'Linea':<10} {'Columna':<10}\n")
-            archivo_salida.write("-" * 100 + "\n")
-            for token in tokens:
-
-                archivo_salida.write(f"{token.tipo.value:<20} {token.valor:<20} Linea:{token.linea:<10} Columna:{token.col:<10}\n")
-        
-        archivo_salida_dep = archivo_fuente.replace(".txt", ".dep")
-        with open(archivo_salida_dep, "w", encoding="utf-8") as archivo_salida2:
-            for token in tokens:
-                archivo_salida2.write(f"{token.valor}")
-
-        
-        
-        # --- Generación de Tabla de Símbolos ---
-        tabla_simbolos = []
-        simbolos_vistos = set() # Para evitar duplicados
-        simbolo_id_actual = 1
-
-        for token in tokens:
-            # Incluir todos los tipos de token (excepto EOF y los ignorados si se generaran)
-            # y evitar duplicados basados en el lexema.
-            if token.tipo != token.valor not in simbolos_vistos:
-                 # No incluir tokens vacíos si los hubiera (EOF tiene valor vacío)
-                if token.valor:
-                    tabla_simbolos.append((simbolo_id_actual, token.valor, token.tipo.value))
-                    simbolos_vistos.add(token.valor)
-                    simbolo_id_actual += 1
-
-        # --- Guardar la tabla de símbolos en un archivo .tab
-        archivo_salida_tab = archivo_fuente.replace(".txt", ".tab") 
-        with open(archivo_salida_tab, "w", encoding="utf-8") as archivo_tab:
-            archivo_tab.write(f"{'ID':<5} {'Lexema':<15} {'Token':<15}{'Tipo en Diccionario':<15}\n")
-            archivo_tab.write("-" * 55 + "\n")
-            for id_simbolo, lexema,tipo_token in tabla_simbolos:
-                if lexema in palabrasReservadas:
-                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Palabra reservada\n")
-                elif lexema in aritmeticos:
-                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Operador aritmético\n")
-                elif lexema in agrupacion:
-                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Agrupación\n")
-                elif tipo_token == 'ID':
-                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Identificador\n")
-        
-       
-        
-
-
-    except ValueError as e:
-        print(f"\nError durante el análisis léxico: {e}")
-    
-
 ##Analizador Sintactico 
 
 # --- Configuración para PLY ---
@@ -399,6 +331,7 @@ class PlyLexerWrapper:
 # --- Construir el parser ---
 parser = yacc.yacc()
 
+
 # --- Función para imprimir el árbol ---
 def print_parse_tree(node, prefix="", is_last=True):
     """
@@ -436,21 +369,337 @@ def print_parse_tree(node, prefix="", is_last=True):
         # Imprime el valor del token en la misma línea
         print(f" : {repr(content)}")
 
+def extraer_simbolos_con_tipos(parse_tree_root):
+    simbolos = {}  # {identificador: tipo}
+    def recorrer_declaraciones(nodo):
+        if not isinstance(nodo, tuple):
+            return
+        nombre, hijos = nodo
+        if nombre == 'declaracion':
+            tipo = hijos[0][1]  # 'int', 'cad', 'booleano'
+            id_principal = hijos[1][1]
+            #if id_principal in simbolos:
+                #print(f"Advertencia: Variable '{id_principal}' redeclarada.")
+            simbolos[id_principal] = tipo
+            # Buscar variables adicionales en decVarias
+            dec_varias = hijos[2]
+            def extraer_ids_decvarias(nodo):
+                if not isinstance(nodo, tuple):
+                    return []
+                nombre, hijos = nodo
+                if nombre == 'decVarias':
+                    if len(hijos) == 3:
+                        return [hijos[1][1]] + extraer_ids_decvarias(hijos[2])
+                    elif len(hijos) == 1:
+                        return []
+                return []
+            for id_extra in extraer_ids_decvarias(dec_varias):
+                #if id_extra in simbolos:
+                    #print(f"Advertencia: Variable '{id_extra}' redeclarada.")
+                simbolos[id_extra] = tipo
+        # Recorrer hijos
+        if isinstance(hijos, list):
+            for h in hijos:
+                recorrer_declaraciones(h)
+        elif isinstance(hijos, tuple):
+            recorrer_declaraciones(hijos)
+    # Buscar nodo de declaraciones en el árbol
+    declaraciones = None
+    for hijo in parse_tree_root[1]:
+        if isinstance(hijo, tuple) and hijo[0] == 'declaraciones':
+            declaraciones = hijo
+            break
+    if declaraciones:
+        for nodo in declaraciones[1]:
+            recorrer_declaraciones(nodo)
+    return simbolos
 
+# --- Ejecución del Analizador Léxico y Sintáctico ---
 if __name__ == "__main__":
-    with open("codigo_fuente.txt", "r", encoding="utf-8") as f:
-        data = f.read()
-    
-    # Crear el lexer adaptado
-    lexer_wrapper = PlyLexerWrapper(data)
-    
-    # Ejecutar el parser
-    parse_tree_root = parser.parse(lexer=lexer_wrapper)
+    archivo_fuente = "codigo_fuente.txt"  # Nombre del archivo de entrada
+    try:
+        with open(archivo_fuente, "r", encoding="utf-8") as archivo:
+            codigo_ejemplo = archivo.read()
+            
+            # Crear el lexer adaptado
+            lexer_wrapper = PlyLexerWrapper(codigo_ejemplo)
+            
+            # Ejecutar el parser
+            parse_tree_root = parser.parse(lexer=lexer_wrapper)
 
-    if parse_tree_root:
-        print("\n--- Árbol de Análisis Sintáctico ---")
-        # Llamada inicial a la función de impresión del árbol
-        print_parse_tree(parse_tree_root, prefix="", is_last=True)
-    else:
-        print("\nNo se pudo generar el árbol de análisis (error de sintaxis o entrada vacía).")
+            if parse_tree_root:
+                print("\n--- Árbol de Análisis Sintáctico ---")
+                # Llamada inicial a la función de impresión del árbol
+                print_parse_tree(parse_tree_root, prefix="", is_last=True)
+            else:
+                print("\nNo se pudo generar el árbol de análisis (error de sintaxis o entrada vacía).")
+
+    except FileNotFoundError:
+        print(f"Error: No se encontró el archivo {archivo_fuente}")
+        exit(1)
+
+    analizador = AnalizadorLexico(codigo_ejemplo, patrones_lexer, palabrasReservadas)
+
+    try:
+        tokens = analizador.generar_tokens()
+        # for token in tokens:
+        #     print(token)
+        archivo_salida_tok = archivo_fuente.replace(".txt", ".tok")
+        with open(archivo_salida_tok, "w", encoding="utf-8") as archivo_salida:
+            archivo_salida.write(f"{'Tipo de Token':<20}{'Valor':<20} {'Linea':<10} {'Columna':<10}\n")
+            archivo_salida.write("-" * 100 + "\n")
+            for token in tokens:
+
+                archivo_salida.write(f"{token.tipo.value:<20} {token.valor:<20} Linea:{token.linea:<10} Columna:{token.col:<10}\n")
+        
+        archivo_salida_dep = archivo_fuente.replace(".txt", ".dep")
+        with open(archivo_salida_dep, "w", encoding="utf-8") as archivo_salida2:
+            for token in tokens:
+                archivo_salida2.write(f"{token.valor}")
+
+        
+        
+        # --- Generación de Tabla de Símbolos ---
+        tabla_simbolos = []
+        simbolos_vistos = set() # Para evitar duplicados
+        simbolo_id_actual = 1
+
+        for token in tokens:
+            # Incluir todos los tipos de token (excepto EOF y los ignorados si se generaran)
+            # y evitar duplicados basados en el lexema.
+            #if token.tipo != token.valor not in simbolos_vistos:
+            if token.valor not in simbolos_vistos:
+                 # No incluir tokens vacíos si los hubiera (EOF tiene valor vacío)
+                if token.valor:
+                    tabla_simbolos.append((simbolo_id_actual, token.valor, token.tipo.value))
+                    simbolos_vistos.add(token.valor)
+                    simbolo_id_actual += 1
+
+        # --- Extraer tipos desde el arbol sintactico  ---
+        tipos_identificadores = {}
+        if parse_tree_root:
+            tipos_identificadores = extraer_simbolos_con_tipos(parse_tree_root)
+
+        # --- Guardar la tabla de símbolos en un archivo .tab
+        archivo_salida_tab = archivo_fuente.replace(".txt", ".tab") 
+        with open(archivo_salida_tab, "w", encoding="utf-8") as archivo_tab:
+            archivo_tab.write(f"{'ID':<5} {'Lexema':<15} {'Token':<15}{'Tipo en Diccionario':<15} {'Tipo Declarado'}\n")
+            archivo_tab.write("-" * 55 + "\n")
+            for id_simbolo, lexema,tipo_token in tabla_simbolos:
+                tipo_decl = tipos_identificadores.get(lexema, "")
+                if lexema in palabrasReservadas:
+                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Palabra reservada\n")
+                elif lexema in aritmeticos:
+                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Operador aritmético\n")
+                elif lexema in agrupacion:
+                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Agrupación\n")
+                elif tipo_token == 'ID':
+                    archivo_tab.write(f"{id_simbolo:<5} {lexema:<15} {tipo_token:<15} Identificador{'':<8}{tipo_decl}\n")
+
+        def obtener_tipo_expresion(nodo, simbolos, errores):
+            if not isinstance(nodo, tuple):
+                return None
+            nombre, hijos = nodo
+            if nombre == 'expresion':
+                if len(hijos) == 1:
+                    tipo, valor = hijos[0]
+                    if tipo == 'CINT':
+                        return 'int'
+                    elif tipo == 'CADENA_LITERAL':
+                        return 'cad'
+                    elif tipo == 'ID':
+                        tipo_id = simbolos.get(valor, None)
+                        if tipo_id is None:
+                            errores.append(f"Variable '{valor}' no declarada.")
+                        return tipo_id
+                elif len(hijos) == 3:
+                    # Manejo de paréntesis: ('PAREN', '('), expresion, ('TESIS', ')')
+                    if hijos[0][0] == 'PAREN' and hijos[2][0] == 'TESIS':
+                        return obtener_tipo_expresion(hijos[1], simbolos, errores)
+                    # Operación binaria
+                    tipo_izq = obtener_tipo_expresion(hijos[0], simbolos, errores)
+                    op = hijos[1][0]
+                    tipo_der = obtener_tipo_expresion(hijos[2], simbolos, errores)
+                    if op in ['MAS', 'MENOS', 'MUL', 'DIV']:
+                        if tipo_izq != tipo_der:
+                            errores.append(f"Operación '{op}' entre tipos incompatibles: '{tipo_izq}' y '{tipo_der}'.")
+                            return None
+                        if tipo_izq != 'int':
+                            errores.append(f"Operación aritmética '{op}' solo permitida entre enteros, no '{tipo_izq}'.")
+                            return None
+                        return tipo_izq
+                    return tipo_izq
+            elif nombre == 'sentencia' and isinstance(hijos, list):
+                return obtener_tipo_expresion(hijos[0], simbolos, errores)
+            return None
+
+        def validar_tipos_en_arbol(nodo, simbolos, errores, en_sentencias=False, declarados=None):
+            if declarados is None:
+                declarados = set()
+            if not isinstance(nodo, tuple):
+                return
+            nombre, hijos = nodo
+            # Detecta declaración en cualquier parte
+            if nombre == 'declaracion':
+                tipo = hijos[0][1]
+                id_principal = hijos[1][1]
+                # Duplicados
+                if id_principal in declarados:
+                    errores.append(f"Variable '{id_principal}' redeclarada.")
+                declarados.add(id_principal)
+                # Declaración fuera de zona de declaraciones
+                if en_sentencias:
+                    errores.append(f"Declaración de variable '{id_principal}' de tipo '{tipo}' fuera de la zona de declaraciones.")
+                # Variables adicionales
+                dec_varias = hijos[2]
+                def extraer_ids_decvarias(nodo):
+                    if not isinstance(nodo, tuple):
+                        return []
+                    nombre, hijos = nodo
+                    if nombre == 'decVarias':
+                        if len(hijos) == 3:
+                            return [hijos[1][1]] + extraer_ids_decvarias(hijos[2])
+                        elif len(hijos) == 1:
+                            return []
+                    return []
+                for id_extra in extraer_ids_decvarias(dec_varias):
+                    if id_extra in declarados:
+                        errores.append(f"Variable '{id_extra}' redeclarada.")
+                    declarados.add(id_extra)
+                    if en_sentencias:
+                        errores.append(f"Declaración de variable '{id_extra}' de tipo '{tipo}' fuera de la zona de declaraciones.")
+            if nombre == 'asignacion':
+                id_var = hijos[0][1]
+                tipo_var = simbolos.get(id_var, None)
+                tipo_expr = obtener_tipo_expresion(hijos[2], simbolos, errores)
+                if tipo_var is None:
+                    errores.append(f"Variable '{id_var}' no declarada.")
+                elif tipo_expr is None:
+                    errores.append(f"No se pudo determinar el tipo de la expresión para '{id_var}'.")
+                elif tipo_var != tipo_expr:
+                    errores.append(f"Tipo incompatible en asignación a '{id_var}': se esperaba '{tipo_var}', se obtuvo '{tipo_expr}'.")
+            # Recorrer hijos
+            if isinstance(hijos, list):
+                for h in hijos:
+                    # Si estamos en sentencias, pasa el flag en_sentencias=True
+                    validar_tipos_en_arbol(h, simbolos, errores, en_sentencias=(nombre == 'sentencias' or en_sentencias), declarados=declarados)
+            elif isinstance(hijos, tuple):
+                validar_tipos_en_arbol(hijos, simbolos, errores, en_sentencias=en_sentencias, declarados=declarados)
+
+        errores_semanticos = []
+        # ...existing code...
+        #if parse_tree_root:
+        #    simbolos_tabla = extraer_simbolos_con_tipos(parse_tree_root)
+        #    print("Diccionario de tipos extraído:", simbolos_tabla)  # <-- Agrega esto
+        #    validar_tipos_en_arbol(parse_tree_root, simbolos_tabla, errores_semanticos)
+        # ...existing code...
+
+
+        # --- Análisis semántico con tipos y coherencia de operaciones ---
+        
+        if parse_tree_root:
+            simbolos_tabla = extraer_simbolos_con_tipos(parse_tree_root)
+            validar_tipos_en_arbol(parse_tree_root, simbolos_tabla, errores_semanticos)
+            if errores_semanticos:
+                print("\nErrores semánticos encontrados:")
+                for err in errores_semanticos:
+                    print(" -", err)
+            else:
+                print("\nAnálisis semántico correcto.")
+            
+        def generar_cuadruplos(nodo, temporales=None, cuadruplos=None):
+            if temporales is None:
+                temporales = []
+            if cuadruplos is None:
+                cuadruplos = []
+            if not isinstance(nodo, tuple):
+                return None
+            nombre, hijos = nodo
+
+            if nombre == 'asignacion':
+                id_var = hijos[0][1]
+                expr = hijos[2]
+                temp = generar_cuadruplos(expr, temporales, cuadruplos)
+                cuadruplos.append((':=', temp, None, id_var))
+                return id_var
+
+            elif nombre == 'expresion':
+                if len(hijos) == 1:
+                    tipo, valor = hijos[0]
+                    return valor
+                elif len(hijos) == 3:
+                    if hijos[0][0] == 'PAREN' and hijos[2][0] == 'TESIS':
+                        return generar_cuadruplos(hijos[1], temporales, cuadruplos)
+                    izq = generar_cuadruplos(hijos[0], temporales, cuadruplos)
+                    op = hijos[1][1]
+                    der = generar_cuadruplos(hijos[2], temporales, cuadruplos)
+                    temp = f"t{len(temporales)+1}"
+                    temporales.append(temp)
+                    cuadruplos.append((op, izq, der, temp))
+                    return temp
+
+            elif nombre == 'sentencia' and isinstance(hijos, list):
+                for h in hijos:
+                    generar_cuadruplos(h, temporales, cuadruplos)
+
+            elif nombre == 'sentencias' and isinstance(hijos, list):
+                for h in hijos:
+                    generar_cuadruplos(h, temporales, cuadruplos)
+
+            # impcad con ID
+            elif nombre == 'impcad_sent_id':
+                id_var = hijos[1][1]
+                cuadruplos.append(('IMPCAD', id_var, None, None))
+
+            # impcad con literal
+            elif nombre == 'impcad_sent_literal':
+                literal = hijos[1][1]
+                cuadruplos.append(('IMPCAD', literal, None, None))
+
+            # impdig
+            elif nombre == 'impdig_sent':
+                expr = hijos[1]
+                temp = generar_cuadruplos(expr, temporales, cuadruplos)
+                cuadruplos.append(('IMPDIG', temp, None, None))
+
+            # leerdig
+            elif nombre == 'lectura_leerdig':
+                id_var = hijos[1][1]
+                cuadruplos.append(('LEERDIG', None, None, id_var))
+
+            # leercad
+            elif nombre == 'lectura_leercad':
+                id_var = hijos[1][1]
+                cuadruplos.append(('LEERCAD', None, None, id_var))
+
+            return None
+
+        # --- Generación de código intermedio (cuadruplos) ---
+        cuadruplos = []
+        if parse_tree_root:
+            # Busca el nodo de sentencias en el árbol
+            for hijo in parse_tree_root[1]:
+                if isinstance(hijo, tuple) and hijo[0] == 'sentencias':
+                    generar_cuadruplos(hijo, cuadruplos=cuadruplos)
+                    break
+            print("\n--- Código Intermedio (Cuadruplos) ---")
+            for i, quad in enumerate(cuadruplos, 1):
+                print(f"{i:02}: {quad}")
+
+             # Guardar los cuadruplos en un archivo .quad
+            archivo_salida_quad = archivo_fuente.replace(".txt", ".quad")
+            with open(archivo_salida_quad, "w", encoding="utf-8") as archivo_quad:
+                archivo_quad.write(f"{'Num':<5} {'Operador':<10} {'Arg1':<15} {'Arg2':<15} {'Resultado':<15}\n")
+                archivo_quad.write("-" * 60 + "\n")
+                for i, quad in enumerate(cuadruplos, 1):
+                    op, arg1, arg2, res = quad
+                    archivo_quad.write(f"{i:<5} {op:<10} {str(arg1):<15} {str(arg2):<15} {str(res):<15}\n")
+
+
+    except ValueError as e:
+        print(f"\nError durante el análisis léxico: {e}")
+
+    
+
+
 

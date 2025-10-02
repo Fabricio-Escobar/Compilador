@@ -4,11 +4,11 @@
 # pylint: disable=W,C,R
 _tabversion = '3.10'
 
-_lr_method = 'LALR'
+_lr_method = 'SLR'
 
-_lr_signature = 'rigthASIGleftMASMENOSleftMULDIVleftPARENTESISASIG BOOL CADENA_LITERAL CINT COMA DECL DIV ERROR FIN ID IDERR IGUAL IMPCAD IMPDIG INICIO LEERCAD LEERDIG MAS MENOS MUL PAREN PC PROG TESIS TYPEprograma : PROG ID PC DECL declaraciones INICIO sentencias FINdeclaraciones : declaracion declaraciones\n| emptydeclaracion : TYPE ID decVarias PCdecVarias : COMA ID decVarias\n| emptysentencias : sentencia sentencias\n| emptysentencia : impdig_sent\n| impcad_sent\n| asignacion\n| lectura\n| declaracionimpdig_sent : IMPDIG expresion PCimpcad_sent : IMPCAD CADENA_LITERAL PC\n| IMPCAD ID PCasignacion : ID ASIG expresion PClectura : LEERDIG ID PC\n| LEERCAD ID PCexpresion : expresion MAS expresion\n| expresion MENOS expresion\n| expresion MUL expresion\n| expresion DIV expresion\n| PAREN expresion TESIS\n| CADENA_LITERAL\n| CINT\n| IDempty :'
+_lr_signature = 'rigthASIGleftMASMENOSleftMULDIVleftPARENTESISASIG BOOL CADENA_LITERAL CINT COMA DECL DIV ERROR FIN ID IDERR IGUAL IMPCAD IMPDIG INICIO LEERCAD LEERDIG MAS MENOS MUL PAREN PC PROG TESIS TYPEprograma : PROG ID PC DECL declaraciones INICIO sentencias FINdeclaraciones : declaracion declaraciones\n                     | emptydeclaracion : TYPE ID decVarias PCdecVarias : COMA ID decVarias\n            | emptysentencias : sentencia sentencias\n                  | emptysentencia : impdig_sent\n                 | impcad_sent\n                 | asignacion\n                 | lectura\n                 | declaracionimpdig_sent : IMPDIG expresion PCimpcad_sent : IMPCAD CADENA_LITERAL PC\n                   | IMPCAD ID PCasignacion : ID ASIG expresion PClectura : LEERDIG ID PC\n               | LEERCAD ID PCexpresion : expresion MAS expresion\n                 | expresion MENOS expresion\n                 | expresion MUL expresion\n                 | expresion DIV expresion\n                 | PAREN expresion TESIS\n                 | CADENA_LITERAL\n                 | CINT\n                 | IDempty :'
     
-_lr_action_items = {'PROG':([0,],[2,]),'$end':([1,30,],[0,-1,]),'ID':([2,9,10,15,17,18,19,20,21,22,23,24,25,27,29,33,41,44,45,46,47,48,50,51,52,53,55,],[3,12,13,13,-9,-10,-11,-12,-13,36,38,39,40,42,36,36,-4,-14,36,36,36,36,-15,-16,-18,-19,-17,]),'PC':([3,12,26,28,32,34,35,36,37,38,39,40,42,43,54,56,57,58,59,60,],[4,-28,41,-6,44,-25,-26,-27,50,51,52,53,-28,55,-5,-20,-21,-22,-23,-24,]),'DECL':([4,],[5,]),'TYPE':([5,7,10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[9,9,9,9,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'INICIO':([5,6,7,8,11,41,],[-28,10,-28,-3,-2,-4,]),'FIN':([10,14,15,16,17,18,19,20,21,31,41,44,50,51,52,53,55,],[-28,30,-28,-8,-9,-10,-11,-12,-13,-7,-4,-14,-15,-16,-18,-19,-17,]),'IMPDIG':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[22,22,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'IMPCAD':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[23,23,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'LEERDIG':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[24,24,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'LEERCAD':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[25,25,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'COMA':([12,42,],[27,27,]),'ASIG':([13,],[29,]),'PAREN':([22,29,33,45,46,47,48,],[33,33,33,33,33,33,33,]),'CADENA_LITERAL':([22,23,29,33,45,46,47,48,],[34,37,34,34,34,34,34,34,]),'CINT':([22,29,33,45,46,47,48,],[35,35,35,35,35,35,35,]),'MAS':([32,34,35,36,43,49,56,57,58,59,60,],[45,-25,-26,-27,45,45,-20,-21,-22,-23,-24,]),'MENOS':([32,34,35,36,43,49,56,57,58,59,60,],[46,-25,-26,-27,46,46,-20,-21,-22,-23,-24,]),'MUL':([32,34,35,36,43,49,56,57,58,59,60,],[47,-25,-26,-27,47,47,47,47,-22,-23,-24,]),'DIV':([32,34,35,36,43,49,56,57,58,59,60,],[48,-25,-26,-27,48,48,48,48,-22,-23,-24,]),'TESIS':([34,35,36,49,56,57,58,59,60,],[-25,-26,-27,60,-20,-21,-22,-23,-24,]),}
+_lr_action_items = {'PROG':([0,],[2,]),'$end':([1,30,],[0,-1,]),'ID':([2,9,10,15,17,18,19,20,21,22,23,24,25,27,29,33,41,44,45,46,47,48,50,51,52,53,55,],[3,12,13,13,-9,-10,-11,-12,-13,36,38,39,40,42,36,36,-4,-14,36,36,36,36,-15,-16,-18,-19,-17,]),'PC':([3,5,7,10,12,15,26,28,32,34,35,36,37,38,39,40,42,43,54,56,57,58,59,60,],[4,-28,-28,-28,-28,-28,41,-6,44,-25,-26,-27,50,51,52,53,-28,55,-5,-20,-21,-22,-23,-24,]),'DECL':([4,],[5,]),'TYPE':([5,7,10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[9,9,9,9,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'INICIO':([5,6,7,8,10,11,12,15,41,42,],[-28,10,-28,-3,-28,-2,-28,-28,-4,-28,]),'FIN':([5,7,10,12,14,15,16,17,18,19,20,21,31,41,42,44,50,51,52,53,55,],[-28,-28,-28,-28,30,-28,-8,-9,-10,-11,-12,-13,-7,-4,-28,-14,-15,-16,-18,-19,-17,]),'IMPDIG':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[22,22,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'IMPCAD':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[23,23,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'LEERDIG':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[24,24,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'LEERCAD':([10,15,17,18,19,20,21,41,44,50,51,52,53,55,],[25,25,-9,-10,-11,-12,-13,-4,-14,-15,-16,-18,-19,-17,]),'COMA':([12,42,],[27,27,]),'ASIG':([13,],[29,]),'PAREN':([22,29,33,45,46,47,48,],[33,33,33,33,33,33,33,]),'CADENA_LITERAL':([22,23,29,33,45,46,47,48,],[34,37,34,34,34,34,34,34,]),'CINT':([22,29,33,45,46,47,48,],[35,35,35,35,35,35,35,]),'MAS':([32,34,35,36,43,49,56,57,58,59,60,],[45,-25,-26,-27,45,45,-20,-21,-22,-23,-24,]),'MENOS':([32,34,35,36,43,49,56,57,58,59,60,],[46,-25,-26,-27,46,46,-20,-21,-22,-23,-24,]),'MUL':([32,34,35,36,43,49,56,57,58,59,60,],[47,-25,-26,-27,47,47,47,47,-22,-23,-24,]),'DIV':([32,34,35,36,43,49,56,57,58,59,60,],[48,-25,-26,-27,48,48,48,48,-22,-23,-24,]),'TESIS':([34,35,36,49,56,57,58,59,60,],[-25,-26,-27,60,-20,-21,-22,-23,-24,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -27,32 +27,32 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> programa","S'",1,None,None,None),
-  ('programa -> PROG ID PC DECL declaraciones INICIO sentencias FIN','programa',8,'p_programa','analizador_lexico.py',251),
-  ('declaraciones -> declaracion declaraciones','declaraciones',2,'p_declaraciones','analizador_lexico.py',263),
-  ('declaraciones -> empty','declaraciones',1,'p_declaraciones','analizador_lexico.py',264),
-  ('declaracion -> TYPE ID decVarias PC','declaracion',4,'p_declaracion','analizador_lexico.py',272),
-  ('decVarias -> COMA ID decVarias','decVarias',3,'p_decVarias','analizador_lexico.py',277),
-  ('decVarias -> empty','decVarias',1,'p_decVarias','analizador_lexico.py',278),
-  ('sentencias -> sentencia sentencias','sentencias',2,'p_sentencias','analizador_lexico.py',287),
-  ('sentencias -> empty','sentencias',1,'p_sentencias','analizador_lexico.py',288),
-  ('sentencia -> impdig_sent','sentencia',1,'p_sentencia','analizador_lexico.py',296),
-  ('sentencia -> impcad_sent','sentencia',1,'p_sentencia','analizador_lexico.py',297),
-  ('sentencia -> asignacion','sentencia',1,'p_sentencia','analizador_lexico.py',298),
-  ('sentencia -> lectura','sentencia',1,'p_sentencia','analizador_lexico.py',299),
-  ('sentencia -> declaracion','sentencia',1,'p_sentencia','analizador_lexico.py',300),
-  ('impdig_sent -> IMPDIG expresion PC','impdig_sent',3,'p_impdig_sent','analizador_lexico.py',305),
-  ('impcad_sent -> IMPCAD CADENA_LITERAL PC','impcad_sent',3,'p_impcad_sent','analizador_lexico.py',310),
-  ('impcad_sent -> IMPCAD ID PC','impcad_sent',3,'p_impcad_sent','analizador_lexico.py',311),
-  ('asignacion -> ID ASIG expresion PC','asignacion',4,'p_asignacion','analizador_lexico.py',324),
-  ('lectura -> LEERDIG ID PC','lectura',3,'p_lectura','analizador_lexico.py',329),
-  ('lectura -> LEERCAD ID PC','lectura',3,'p_lectura','analizador_lexico.py',330),
-  ('expresion -> expresion MAS expresion','expresion',3,'p_expresion','analizador_lexico.py',338),
-  ('expresion -> expresion MENOS expresion','expresion',3,'p_expresion','analizador_lexico.py',339),
-  ('expresion -> expresion MUL expresion','expresion',3,'p_expresion','analizador_lexico.py',340),
-  ('expresion -> expresion DIV expresion','expresion',3,'p_expresion','analizador_lexico.py',341),
-  ('expresion -> PAREN expresion TESIS','expresion',3,'p_expresion','analizador_lexico.py',342),
-  ('expresion -> CADENA_LITERAL','expresion',1,'p_expresion','analizador_lexico.py',343),
-  ('expresion -> CINT','expresion',1,'p_expresion','analizador_lexico.py',344),
-  ('expresion -> ID','expresion',1,'p_expresion','analizador_lexico.py',345),
-  ('empty -> <empty>','empty',0,'p_empty','analizador_lexico.py',361),
+  ('programa -> PROG ID PC DECL declaraciones INICIO sentencias FIN','programa',8,'p_programa','analizador_lexico_sintactico.py',185),
+  ('declaraciones -> declaracion declaraciones','declaraciones',2,'p_declaraciones','analizador_lexico_sintactico.py',197),
+  ('declaraciones -> empty','declaraciones',1,'p_declaraciones','analizador_lexico_sintactico.py',198),
+  ('declaracion -> TYPE ID decVarias PC','declaracion',4,'p_declaracion','analizador_lexico_sintactico.py',206),
+  ('decVarias -> COMA ID decVarias','decVarias',3,'p_decVarias','analizador_lexico_sintactico.py',211),
+  ('decVarias -> empty','decVarias',1,'p_decVarias','analizador_lexico_sintactico.py',212),
+  ('sentencias -> sentencia sentencias','sentencias',2,'p_sentencias','analizador_lexico_sintactico.py',221),
+  ('sentencias -> empty','sentencias',1,'p_sentencias','analizador_lexico_sintactico.py',222),
+  ('sentencia -> impdig_sent','sentencia',1,'p_sentencia','analizador_lexico_sintactico.py',230),
+  ('sentencia -> impcad_sent','sentencia',1,'p_sentencia','analizador_lexico_sintactico.py',231),
+  ('sentencia -> asignacion','sentencia',1,'p_sentencia','analizador_lexico_sintactico.py',232),
+  ('sentencia -> lectura','sentencia',1,'p_sentencia','analizador_lexico_sintactico.py',233),
+  ('sentencia -> declaracion','sentencia',1,'p_sentencia','analizador_lexico_sintactico.py',234),
+  ('impdig_sent -> IMPDIG expresion PC','impdig_sent',3,'p_impdig_sent','analizador_lexico_sintactico.py',239),
+  ('impcad_sent -> IMPCAD CADENA_LITERAL PC','impcad_sent',3,'p_impcad_sent','analizador_lexico_sintactico.py',244),
+  ('impcad_sent -> IMPCAD ID PC','impcad_sent',3,'p_impcad_sent','analizador_lexico_sintactico.py',245),
+  ('asignacion -> ID ASIG expresion PC','asignacion',4,'p_asignacion','analizador_lexico_sintactico.py',258),
+  ('lectura -> LEERDIG ID PC','lectura',3,'p_lectura','analizador_lexico_sintactico.py',263),
+  ('lectura -> LEERCAD ID PC','lectura',3,'p_lectura','analizador_lexico_sintactico.py',264),
+  ('expresion -> expresion MAS expresion','expresion',3,'p_expresion','analizador_lexico_sintactico.py',272),
+  ('expresion -> expresion MENOS expresion','expresion',3,'p_expresion','analizador_lexico_sintactico.py',273),
+  ('expresion -> expresion MUL expresion','expresion',3,'p_expresion','analizador_lexico_sintactico.py',274),
+  ('expresion -> expresion DIV expresion','expresion',3,'p_expresion','analizador_lexico_sintactico.py',275),
+  ('expresion -> PAREN expresion TESIS','expresion',3,'p_expresion','analizador_lexico_sintactico.py',276),
+  ('expresion -> CADENA_LITERAL','expresion',1,'p_expresion','analizador_lexico_sintactico.py',277),
+  ('expresion -> CINT','expresion',1,'p_expresion','analizador_lexico_sintactico.py',278),
+  ('expresion -> ID','expresion',1,'p_expresion','analizador_lexico_sintactico.py',279),
+  ('empty -> <empty>','empty',0,'p_empty','analizador_lexico_sintactico.py',295),
 ]
